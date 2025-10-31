@@ -6,4 +6,6 @@ from . import views
 urlpatterns = [
     path('students/', views.StudentListView.as_view(), name='student_list'),
     path('students/<str:student_id>/edit/', views.StudentUpdateView.as_view(), name='student_edit'),
+    path('students/<str:student_id>/delete/', views.StudentDeleteView.as_view(), name='student_delete'),
+    path('fees/', views.FeeStructureListView.as_view(), name='fee_structure_list'),
 ]

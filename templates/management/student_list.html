@@ -29,6 +29,7 @@
             <td>{{ student.get_status }}</td>
             <td>
                 <a href="{% url 'student_edit' student.student_id %}" class="btn btn-sm btn-warning">Edit</a>
+                <a href="{% url 'student_delete' student.student_id %}" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">Delete</a>
             </td>
         </tr>
         {% empty %}

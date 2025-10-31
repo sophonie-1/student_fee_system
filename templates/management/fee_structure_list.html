@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Fee Structure Management</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    {% if form.errors %}
+        <div class="alert alert-danger">
+            Please correct the errors below: {{ form.errors }}
+        </div>
+    {% endif %}
+    <button type="submit" class="btn btn-primary">Add Fee Structure</button>
+</form>
+<table class="table mt-3">
+    <thead>
+        <tr>
+            <th>Program</th><th>Year</th><th>Total Fee</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for fee in fees %}
+        <tr>
+            <td>{{ fee.program }}</td>
+            <td>{{ fee.year }}</td>
+            <td>{{ fee.total_fee }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="3">No fee structures yet.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
