@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Edit Student: {{ object.name }}</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    {% if form.errors %}
+        <div class="alert alert-danger">
+            Please correct the errors below: {{ form.errors }}
+        </div>
+    {% endif %}
+    <button type="submit" class="btn btn-primary">Update Student</button>
+    <a href="{% url 'student_list' %}" class="btn btn-secondary">Cancel</a>
+</form>
+{% endblock %}

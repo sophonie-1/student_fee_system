@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Student Management</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    {% if form.errors %}
+        <div class="alert alert-danger">
+            Please correct the errors below: {{ form.errors }}
+        </div>
+    {% endif %}
+    <button type="submit" class="btn btn-primary">Add Student</button>
+</form>
+<table class="table mt-3">
+    <thead>
+        <tr>
+            <th>ID</th><th>Name</th><th>Program</th><th>Campus</th><th>Year</th><th>Balance</th><th>Status</th><th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for student in students %}
+        <tr>
+            <td>{{ student.student_id }}</td>
+            <td>{{ student.name }}</td>
+            <td>{{ student.program }}</td>
+            <td>{{ student.campus }}</td>
+            <td>{{ student.year_of_study }}</td>
+            <td>{{ student.get_balance }}</td>
+            <td>{{ student.get_status }}</td>
+            <td>
+                <a href="{% url 'student_edit' student.student_id %}" class="btn btn-sm btn-warning">Edit</a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="8">No students yet.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
