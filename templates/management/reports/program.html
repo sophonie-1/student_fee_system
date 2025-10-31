@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Per Program Report</h2>
+<table class="table">
+    <thead><tr><th>Program</th><th>Expected Income</th><th>Collected</th><th>Outstanding</th></tr></thead>
+    <tbody>
+        {% for prog, data in programs.items %}
+        <tr>
+            <td>{{ prog }}</td>
+            <td>{{ data.expected }}</td>
+            <td>{{ data.collected }}</td>
+            <td>{{ data.expected|add:data.collected|floatformat:2 }}</td>
+
+        </tr>
+        {% empty %}
+        <tr><td colspan="4">No programs.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

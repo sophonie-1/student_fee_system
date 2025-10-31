@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Overall Summary</h2>
+<div class="alert alert-info">
+    <h4>Total Collected Across All Programs: {{ total_collected }}</h4>
+</div>
+<a href="{% url 'per_student_report' %}" class="btn btn-secondary">Back to Student Report</a>
+{% endblock %}

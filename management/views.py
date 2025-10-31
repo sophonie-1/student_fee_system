@@ -1,14 +1,15 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView, DeleteView,TemplateView,View
 from django.shortcuts import redirect
-from .models import Student, Payment
-from .forms import StudentForm, PaymentForm
+from .models import Student, Payment, FeeStructure
+from .forms import StudentForm, PaymentForm, FeeStructureForm
 from django.urls import reverse_lazy
 from django.views.generic.edit import UpdateView
 
 from django.http import HttpResponse
 import csv
 from datetime import datetime
+from django.db.models import Sum
 
 class StudentListView(LoginRequiredMixin, ListView):
     model = Student
@@ -19,6 +20,15 @@ class StudentListView(LoginRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
         context['form'] = StudentForm()  # Empty form for GET requests
         return context
+    
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        query = self.request.GET.get('q')
+        if query:
+            queryset = queryset.filter(
+            name__icontains=query
+            ) | queryset.filter(program__icontains=query) | queryset.filter(campus__icontains=query)
+        return queryset
 
     def post(self, request, *args, **kwargs):
         form = StudentForm(request.POST)
@@ -44,10 +54,6 @@ class StudentDeleteView(LoginRequiredMixin, DeleteView):
     pk_url_kwarg = 'student_id'  # Use 'student_id' in URL
     success_url = reverse_lazy('student_list')
 
-from .models import Student, FeeStructure  # Add FeeStructure here
-from .forms import StudentForm, FeeStructureForm  # Add FeeStructureForm here
-
-# ... existing views ...
 
 class FeeStructureListView(LoginRequiredMixin, ListView):
     model = FeeStructure
@@ -99,12 +105,21 @@ class PaymentRecordView(LoginRequiredMixin, ListView):
                 payment.payment_id = f"P{num:03d}"
             else:
                 payment.payment_id = "P001"
-            payment.save()  # Now save with validation
-            return redirect('payment_record')
-        # Invalid: Manually set queryset and build context
+            try:
+                payment.save()  # Triggers model validation
+                return redirect('payment_record')
+            except ValueError as e:
+                # Catch overpayment error and show friendly message
+                student = payment.student
+                total_fee = student.get_total_fee()
+                current_paid = student.get_total_paid()
+                remaining = total_fee - current_paid
+                error_msg = f"Payment too high! Remaining balance for {student.name}: {remaining}. Total fee: {total_fee}. Cannot exceed required fee."
+                form.add_error(None, error_msg)  # Non-field error for the form
+        # Invalid form (or overpay error): Manually set queryset and build context
         self.object_list = self.get_queryset()
         context = super().get_context_data(object_list=self.object_list, **kwargs)
-        context['form'] = form  # Include invalid form with errors
+        context['form'] = form  # Include form with errors
         return self.render_to_response(context)
 
 class PerStudentReportView(LoginRequiredMixin, TemplateView):

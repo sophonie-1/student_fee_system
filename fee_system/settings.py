@@ -41,10 +41,6 @@ INSTALLED_APPS = [
 ]
 
 
-LOGIN_URL = '/login/'
-LOGIN_REDIRECT_URL = '/students/'  # Redirect after login
-LOGOUT_REDIRECT_URL = '/login/'  # Redirect after logout
-
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -56,6 +52,14 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'fee_system.urls'
+# Redirect after successful login
+LOGIN_REDIRECT_URL = 'student_list'
+
+# Redirect to login page when login is required
+LOGIN_URL = 'login'
+
+# Redirect after logout
+LOGOUT_REDIRECT_URL = 'login'
 
 TEMPLATES = [
     {

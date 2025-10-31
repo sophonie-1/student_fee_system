@@ -4,21 +4,107 @@
 <head>
     <meta charset="UTF-8">
     <title>Student Fee System</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .navbar {
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .navbar-brand {
+            font-weight: 600;
+            color: #0d6efd !important;
+        }
+        
+        .nav-link {
+            color: #333 !important;
+            margin-right: 10px;
+            transition: color 0.2s ease-in-out;
+        }
+        
+        .nav-link:hover {
+            color: #0d6efd !important;
+        }
+        
+        .btn-logout {
+            margin-left: 15px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #777;
+            font-size: 14px;
+        }
+    </style>
 </head>
 
 <body>
-    <div class="navbar-nav ms-auto">
-        {% if user.is_authenticated %}
-        <a class="nav-link" href="{% url 'student_list' %}">Students</a>
-        <a class="nav-link" href="{% url 'fee_structure_list' %}">Fees</a>
-        <a class="nav-link" href="{% url 'payment_record' %}">Payments</a>
-        <a class="nav-link" href="{% url 'logout' %}">Logout ({{ user.username }})</a> {% else %}
-        <a class="nav-link" href="{% url 'login' %}">Login</a> {% endif %}
-    </div>
-    <div class="container mt-4">
-        {% block content %}{% endblock %}
-    </div>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg bg-white navbar-light sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'student_list' %}">🎓 Fee System</a>
+
+            <!-- Mobile toggle button -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <!-- Navbar links -->
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item"><a class="nav-link" href="{% url 'student_list' %}">Students</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'fee_structure_list' %}">Fees</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'payment_record' %}">Payments</a></li>
+
+                    <!-- Reports dropdown -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="reportsDropdown" role="button" data-bs-toggle="dropdown">
+                            Reports
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="reportsDropdown">
+                            <li><a class="dropdown-item" href="{% url 'per_student_report' %}">Per Student</a></li>
+                            <li><a class="dropdown-item" href="{% url 'per_program_report' %}">Per Program</a></li>
+                            <li><a class="dropdown-item" href="{% url 'overall_summary' %}">Overall</a></li>
+                        </ul>
+                    </li>
+
+                    {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <form action="{% url 'logout' %}" method="post" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-danger btn-sm btn-logout">Logout</button>
+                        </form>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Content -->
+    <main class="container mt-4">
+        {% block content %} {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="py-3">
+        &copy; {{ year|default:2025 }} Student Fee System — All Rights Reserved
+    </footer>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 

@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Per Student Report</h2>
+<table class="table">
+    <thead><tr><th>Name</th><th>Program</th><th>Campus</th><th>Total Fee</th><th>Paid</th><th>Balance</th><th>Status</th></tr></thead>
+    <tbody>
+        {% for student in students %}
+        <tr>
+            <td>{{ student.name }}</td>
+            <td>{{ student.program }}</td>
+            <td>{{ student.campus }}</td>
+            <td>{{ student.get_total_fee }}</td>
+            <td>{{ student.get_total_paid }}</td>
+            <td>{{ student.get_balance }}</td>
+            <td><span class="badge {% if student.get_status == 'Cleared' %}bg-success{% else %}bg-warning{% endif %}">{{ student.get_status }}</span></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7">No students.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+<a href="{% url 'export_csv' %}" class="btn btn-success">Export to CSV</a>
+{% endblock %}
