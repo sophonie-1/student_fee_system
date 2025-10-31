@@ -1,10 +1,14 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import ListView, DeleteView
+from django.views.generic import ListView, DeleteView,TemplateView,View
 from django.shortcuts import redirect
 from .models import Student, Payment
 from .forms import StudentForm, PaymentForm
 from django.urls import reverse_lazy
 from django.views.generic.edit import UpdateView
+
+from django.http import HttpResponse
+import csv
+from datetime import datetime
 
 class StudentListView(LoginRequiredMixin, ListView):
     model = Student
@@ -102,3 +106,48 @@ class PaymentRecordView(LoginRequiredMixin, ListView):
         context = super().get_context_data(object_list=self.object_list, **kwargs)
         context['form'] = form  # Include invalid form with errors
         return self.render_to_response(context)
+
+class PerStudentReportView(LoginRequiredMixin, TemplateView):
+    template_name = 'management/reports/student.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['students'] = Student.objects.all()
+        return context
+
+class PerProgramReportView(LoginRequiredMixin, TemplateView):
+    template_name = 'management/reports/program.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        programs = {}
+        for student in Student.objects.all():
+            prog = student.program
+            if prog not in programs:
+                programs[prog] = {'expected': 0, 'collected': 0}
+            programs[prog]['expected'] += student.get_total_fee()
+            programs[prog]['collected'] += student.get_total_paid()
+        context['programs'] = programs
+        return context
+
+class OverallSummaryView(LoginRequiredMixin, TemplateView):
+    template_name = 'management/reports/overall.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['total_collected'] = Payment.objects.aggregate(total=Sum('amount'))['total'] or 0
+        return context
+
+class ExportCSVView(LoginRequiredMixin, View):
+    def get(self, request):
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = f'attachment; filename="student_report_{datetime.now().strftime("%Y%m%d")}.csv"'
+        writer = csv.writer(response)
+        writer.writerow(['Name', 'Program', 'Campus', 'Total Fee', 'Paid', 'Balance', 'Status'])
+        for student in Student.objects.all():
+            writer.writerow([
+                student.name, student.program, student.campus,
+                student.get_total_fee(), student.get_total_paid(),
+                student.get_balance(), student.get_status()
+            ])
+        return response
