@@ -12,6 +12,7 @@
         {% if user.is_authenticated %}
         <a class="nav-link" href="{% url 'student_list' %}">Students</a>
         <a class="nav-link" href="{% url 'fee_structure_list' %}">Fees</a>
+        <a class="nav-link" href="{% url 'payment_record' %}">Payments</a>
         <a class="nav-link" href="{% url 'logout' %}">Logout ({{ user.username }})</a> {% else %}
         <a class="nav-link" href="{% url 'login' %}">Login</a> {% endif %}
     </div>
